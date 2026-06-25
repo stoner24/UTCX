@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin · UTCX Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:       #4a7c3f;
+      --green-light: #6aaa5c;
+      --green-dim:   #2d4d26;
+      --black:       #0d0d0d;
+      --surface:     #141414;
+      --card:        #1c1c1c;
+      --border:      #2a2a2a;
+      --mid:         #888;
+      --white:       #f0f0f0;
+      --font-head:   'Oswald', sans-serif;
+      --font-body:   'Inter', sans-serif;
+      --radius:      6px;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      color: var(--white);
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    .topbar-logo em { color: var(--green-light); font-style: normal; }
+    .topbar-divider { width: 1px; height: 20px; background: var(--border); }
+    .topbar-label {
+      font-size: 0.75rem;
+      font-family: var(--font-head);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+    .topbar-spacer { flex: 1; }
+    .topbar-back {
+      font-size: 0.8rem;
+      color: var(--mid);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.15s;
+    }
+    .topbar-back:hover { color: var(--white); }
+
+    /* ── LAYOUT ── */
+    .main {
+      flex: 1;
+      max-width: 680px;
+      width: 100%;
+      margin: 3rem auto;
+      padding: 0 1.5rem 4rem;
+    }
+
+    /* ── AUTH GATE ── */
+    #auth-gate, #app { transition: opacity 0.2s; }
+    #app { display: none; }
+
+    .auth-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+    }
+    .auth-card h1 {
+      font-family: var(--font-head);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .auth-card p {
+      font-size: 0.85rem;
+      color: var(--mid);
+      line-height: 1.6;
+      margin-bottom: 1.75rem;
+    }
+    .auth-card a { color: var(--green-light); }
+
+    /* ── FORM ELEMENTS ── */
+    .field { margin-bottom: 1.25rem; }
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-family: var(--font-head);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 0.5rem;
+    }
+    .field input, .field select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      padding: 0.65rem 0.9rem;
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--green-light);
+    }
+    .field input::placeholder { color: var(--mid); }
+
+    /* ── FILE DROP ZONE ── */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--green-light);
+      background: rgba(74,124,63,0.06);
+    }
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .drop-zone-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .drop-zone-label {
+      font-family: var(--font-head);
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+    .drop-zone-sub { font-size: 0.75rem; color: #555; margin-top: 0.3rem; }
+    .drop-zone.has-file { border-color: var(--green); background: rgba(74,124,63,0.08); }
+    .drop-zone.has-file .drop-zone-label { color: var(--green-light); }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      background: var(--green);
+      color: #fff;
+      font-family: var(--font-head);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      margin-top: 0.5rem;
+    }
+    .btn-primary:hover { background: var(--green-light); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    /* ── RACE CONFIG PANEL ── */
+    .panel-header {
+      font-family: var(--font-head);
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 1rem;
+    }
+
+    /* ── RACE LIST ── */
+    .race-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .race-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 0.9rem;
+    }
+    .race-row-num {
+      font-family: var(--font-head);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--mid);
+      width: 60px;
+      flex-shrink: 0;
+    }
+    .race-row-name { flex: 1; font-size: 0.85rem; }
+    .race-row-status {
+      font-size: 0.7rem;
+      font-family: var(--font-head);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+    }
+    .status-uploaded { background: rgba(74,124,63,0.2); color: var(--green-light); }
+    .status-pending  { background: rgba(136,136,136,0.1); color: var(--mid); }
+
+    /* ── TOAST / STATUS ── */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1.5rem;
+      font-size: 0.85rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    #toast.success { border-color: var(--green); color: var(--green-light); }
+    #toast.error   { border-color: #c0392b; color: #e74c3c; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 1rem;
+      display: none;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--green);
+      width: 0%;
+      transition: width 0.3s;
+      border-radius: 2px;
+    }
+
+    /* ── REPO HINT ── */
+    .hint {
+      font-size: 0.75rem;
+      color: #555;
+      margin-top: 0.4rem;
+      line-height: 1.5;
+    }
+    code {
+      background: #1a1a1a;
+      color: var(--white);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .main { margin: 1.5rem auto; }
+      .auth-card { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="topbar-logo" href="index.html">
+      <svg width="22" height="27" viewBox="0 0 335 375" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 0,0 L 195,0 L 195,100 L 335,100 L 335,375 L 0,375 Z" fill="#4a7c3f"/>
+        <text x="158" y="280" text-anchor="middle" font-family="Oswald,sans-serif" font-weight="700" font-size="140" fill="white" letter-spacing="6">CX</text>
+      </svg>
+      UT<em>CX</em>
+    </a>
+    <div class="topbar-divider"></div>
+    <span class="topbar-label">Results Admin</span>
+    <div class="topbar-spacer"></div>
+    <a class="topbar-back" href="results.html">← Results page</a>
+  </div>
+
+  <div class="main">
+
+    <!-- AUTH GATE -->
+    <div id="auth-gate">
+      <div class="auth-card">
+        <h1>Sign In</h1>
+        <p>
+          Enter your GitHub Personal Access Token to manage race results.
+          The token needs <strong>repo</strong> scope.
+          <a href="https://github.com/settings/tokens/new?scopes=repo&description=UTCX+Results+Admin" target="_blank">Generate one here ↗</a>
+        </p>
+
+        <div class="field">
+          <label>GitHub Token</label>
+          <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label>Repository</label>
+          <input type="text" id="repo-input" placeholder="stoner24/utcx" value="stoner24/utcx" />
+          <p class="hint">Format: <code>owner/repo-name</code></p>
+        </div>
+
+        <button class="btn-primary" id="signin-btn" onclick="signIn()">Connect to GitHub</button>
+        <div id="auth-error" style="color:#e74c3c; font-size:0.8rem; margin-top:0.75rem; display:none;"></div>
+      </div>
+    </div>
+
+    <!-- MAIN APP (shown after auth) -->
+    <div id="app">
+
+      <!-- UPLOAD SECTION -->
+      <p class="panel-header">Upload Race Result</p>
+
+      <div class="field">
+        <label>Season</label>
+        <select id="season-select">
+          <option value="2026">2026</option>
+          <option value="2025">2025</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Race</label>
+        <select id="race-select">
+          <option value="1">UTCX #1 — Race #1</option>
+          <option value="2">UTCX #2 — Race #2</option>
+          <option value="3">UTCX #3 — Race #3</option>
+          <option value="4">UTCX #4 — Race #4</option>
+          <option value="5">UTCX #5 — Race #5</option>
+          <option value="6">UTCX #6 — Night Race</option>
+          <option value="7">UTCX #7 — Race #7</option>
+          <option value="8">UTCX #8 — Race #8</option>
+          <option value="9">UTCX #9 — Race #9</option>
+          <option value="10">UTCX #10 — State Championship</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Race Name <span style="color:#555">(shown on results page)</span></label>
+        <input type="text" id="race-name-input" placeholder="e.g. Soldier Hollow" />
+      </div>
+
+      <div class="field">
+        <label>Venue</label>
+        <input type="text" id="venue-input" placeholder="e.g. Midway, UT" />
+      </div>
+
+      <div class="field">
+        <label>PDF File</label>
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="file-input" accept=".pdf" />
+          <div class="drop-zone-icon">📄</div>
+          <div class="drop-zone-label" id="drop-label">Drop PDF here or click to browse</div>
+          <div class="drop-zone-sub">PDF files only</div>
+        </div>
+      </div>
+
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+
+      <button class="btn-primary" id="upload-btn" onclick="uploadResult()" disabled>Upload Result</button>
+
+      <hr class="section-divider" />
+
+      <!-- CURRENT STATUS -->
+      <p class="panel-header">2026 Season Status</p>
+      <div class="race-list" id="race-status-list">
+        <!-- populated by JS -->
+      </div>
+
+      <p class="panel-header" style="margin-top:1.5rem;">2025 Season Status</p>
+      <div class="race-list" id="race-status-list-2025">
+        <!-- populated by JS -->
+      </div>
+
+      <hr class="section-divider" />
+
+      <button class="btn-primary" style="background:transparent; border:1px solid var(--border); color:var(--mid); margin-top:0;" onclick="signOut()">Sign Out</button>
+
+    </div><!-- /app -->
+
+  </div><!-- /main -->
+
+  <div id="toast"></div>
+
+  <script>
+    // ── STATE ──────────────────────────────────────────────────────────────
+    let GH_TOKEN = '';
+    let GH_REPO  = '';
+    let selectedFile = null;
+
+    // Known filenames for status checking
+    const RACES_2026 = [
+      { num: 1,  name: 'Race #1',          file: 'utcx-2026-race1.pdf'  },
+      { num: 2,  name: 'Race #2',          file: 'utcx-2026-race2.pdf'  },
+      { num: 3,  name: 'Race #3',          file: 'utcx-2026-race3.pdf'  },
+      { num: 4,  name: 'Race #4',          file: 'utcx-2026-race4.pdf'  },
+      { num: 5,  name: 'Race #5',          file: 'utcx-2026-race5.pdf'  },
+      { num: 6,  name: 'Night Race',       file: 'utcx-2026-race6.pdf'  },
+      { num: 7,  name: 'Race #7',          file: 'utcx-2026-race7.pdf'  },
+      { num: 8,  name: 'Race #8',          file: 'utcx-2026-race8.pdf'  },
+      { num: 9,  name: 'Race #9',          file: 'utcx-2026-race9.pdf'  },
+      { num: 10, name: 'State Championship', file: 'utcx-2026-race10.pdf' },
+    ];
+    const RACES_2025 = [
+      { num: 1, name: 'Race #1', file: 'utcx-2025-race1.pdf' },
+      { num: 2, name: 'Race #2', file: 'utcx-2025-race2.pdf' },
+      { num: 3, name: 'Race #3', file: 'utcx-2025-race3.pdf' },
+    ];
+
+    // ── AUTH ──────────────────────────────────────────────────────────────
+    async function signIn() {
+      const token = document.getElementById('token-input').value.trim();
+      const repo  = document.getElementById('repo-input').value.trim();
+      const errEl = document.getElementById('auth-error');
+      const btn   = document.getElementById('signin-btn');
+
+      if (!token || !repo) {
+        showAuthError('Enter your GitHub token and repo name.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Connecting…';
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${repo}`, {
+          headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github+json' }
+        });
+        if (!res.ok) throw new Error(`GitHub returned ${res.status}. Check your token and repo name.`);
+
+        GH_TOKEN = token;
+        GH_REPO  = repo;
+
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+
+        await refreshStatus();
+      } catch (e) {
+        showAuthError(e.message);
+        btn.disabled = false;
+        btn.textContent = 'Connect to GitHub';
+      }
+    }
+
+    function showAuthError(msg) {
+      const el = document.getElementById('auth-error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function signOut() {
+      GH_TOKEN = '';
+      GH_REPO  = '';
+      selectedFile = null;
+      document.getElementById('auth-gate').style.display = 'block';
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('token-input').value = '';
+    }
+
+    // ── FILE HANDLING ─────────────────────────────────────────────────────
+    const dropZone  = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files[0]) handleFile(fileInput.files[0]);
+    });
+
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const f = e.dataTransfer.files[0];
+      if (f && f.type === 'application/pdf') handleFile(f);
+      else showToast('Only PDF files are accepted.', 'error');
+    });
+
+    function handleFile(f) {
+      selectedFile = f;
+      dropZone.classList.add('has-file');
+      document.getElementById('drop-label').textContent = `✓ ${f.name}`;
+      document.getElementById('upload-btn').disabled = false;
+    }
+
+    // ── UPLOAD ────────────────────────────────────────────────────────────
+    async function uploadResult() {
+      if (!selectedFile) return;
+
+      const season    = document.getElementById('season-select').value;
+      const raceNum   = document.getElementById('race-select').value.padStart(2, '0').replace(/^0(\d)$/, '$1'); // keep as-is
+      const raceName  = document.getElementById('race-name-input').value.trim();
+      const venue     = document.getElementById('venue-input').value.trim();
+      const btn       = document.getElementById('upload-btn');
+
+      const paddedNum = parseInt(raceNum, 10); // numeric for filename
+      const filePath  = `results/${season}/utcx-${season}-race${paddedNum}.pdf`;
+
+      btn.disabled    = true;
+      btn.textContent = 'Uploading…';
+      showProgress(30);
+
+      try {
+        // Convert PDF to base64
+        const base64 = await fileToBase64(selectedFile);
+        showProgress(60);
+
+        // Check if file already exists (need SHA to overwrite)
+        let sha = null;
+        try {
+          const existing = await ghFetch(`/repos/${GH_REPO}/contents/${filePath}`);
+          if (existing.ok) {
+            const data = await existing.json();
+            sha = data.sha;
+          }
+        } catch (_) { /* new file, no SHA needed */ }
+
+        showProgress(75);
+
+        // Upload via GitHub Contents API
+        const body = {
+          message: `Add results: UTCX ${season} Race ${paddedNum}${raceName ? ' – ' + raceName : ''}`,
+          content: base64,
+          ...(sha ? { sha } : {})
+        };
+
+        const uploadRes = await ghFetch(`/repos/${GH_REPO}/contents/${filePath}`, {
+          method: 'PUT',
+          body: JSON.stringify(body)
+        });
+
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json();
+          throw new Error(err.message || 'Upload failed');
+        }
+
+        showProgress(90);
+
+        // Now patch results.html in the repo to activate this card
+        await patchResultsPage(season, paddedNum, raceName, venue, filePath);
+
+        showProgress(100);
+        showToast(`Race ${paddedNum} results uploaded successfully!`, 'success');
+
+        // Reset form
+        selectedFile = null;
+        dropZone.classList.remove('has-file');
+        document.getElementById('drop-label').textContent = 'Drop PDF here or click to browse';
+        document.getElementById('race-name-input').value = '';
+        document.getElementById('venue-input').value = '';
+        fileInput.value = '';
+
+        await refreshStatus();
+
+      } catch (e) {
+        showToast(`Error: ${e.message}`, 'error');
+      } finally {
+        btn.disabled    = false;
+        btn.textContent = 'Upload Result';
+        setTimeout(() => hideProgress(), 800);
+      }
+    }
+
+    // ── PATCH results.html ────────────────────────────────────────────────
+    async function patchResultsPage(season, raceNum, raceName, venue, pdfPath) {
+      // Fetch current results.html from repo
+      const res = await ghFetch(`/repos/${GH_REPO}/contents/results.html`);
+      if (!res.ok) return; // silently skip if not found
+      const data = await res.json();
+      const currentContent = atob(data.content.replace(/\n/g, ''));
+      const sha = data.sha;
+
+      // Determine what the card currently looks like (Coming Soon) and replace with PDF link
+      // We look for the block matching this race number
+      const raceLabel = raceNum === 10 ? 'State Championship' : (raceNum === 6 ? 'Night Race' : `Race #${raceNum}`);
+      const displayName = raceName || raceLabel;
+      const displayVenue = venue || 'Utah';
+
+      // The "Coming Soon" card pattern for this race
+      const comingSoonPattern = new RegExp(
+        `(<div class="result-card">\\s*<div class="result-card-info">\\s*<div class="result-card-num">UTCX #${raceNum}<\\/div>\\s*<div class="result-card-name">[^<]*<\\/div>\\s*<div class="result-card-venue">[^<]*<\\/div>\\s*<\\/div>\\s*)<span[^>]*>Coming Soon<\\/span>\\s*(<\\/div>)`,
+        's'
+      );
+
+      const replacement = `<a class="result-card" href="${pdfPath}" target="_blank">\n          <div class="result-card-info">\n            <div class="result-card-num">UTCX #${raceNum}</div>\n            <div class="result-card-name">${displayName}</div>\n            <div class="result-card-venue">${displayVenue}</div>\n          </div>\n          <span class="btn btn-outline btn-sm">PDF</span>\n        </a>`;
+
+      let updatedContent = currentContent;
+      if (comingSoonPattern.test(currentContent)) {
+        updatedContent = currentContent.replace(comingSoonPattern, replacement);
+      }
+      // If no match (already a PDF link), we just uploaded the file — the link is already correct.
+
+      if (updatedContent === currentContent) return; // nothing to patch
+
+      const encoded = btoa(unescape(encodeURIComponent(updatedContent)));
+
+      await ghFetch(`/repos/${GH_REPO}/contents/results.html`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          message: `Activate results link: UTCX ${season} Race ${raceNum}`,
+          content: encoded,
+          sha
+        })
+      });
+    }
+
+    // ── STATUS CHECK ─────────────────────────────────────────────────────
+    async function refreshStatus() {
+      await renderStatusList('race-status-list', RACES_2026, '2026');
+      await renderStatusList('race-status-list-2025', RACES_2025, '2025');
+    }
+
+    async function renderStatusList(elId, races, season) {
+      const el = document.getElementById(elId);
+      el.innerHTML = '';
+
+      await Promise.all(races.map(async r => {
+        const path = `results/${season}/${r.file}`;
+        let exists = false;
+        try {
+          const res = await ghFetch(`/repos/${GH_REPO}/contents/${path}`);
+          exists = res.ok;
+        } catch (_) {}
+
+        const row = document.createElement('div');
+        row.className = 'race-row';
+        row.innerHTML = `
+          <span class="race-row-num">UTCX #${r.num}</span>
+          <span class="race-row-name">${r.name}</span>
+          <span class="race-row-status ${exists ? 'status-uploaded' : 'status-pending'}">
+            ${exists ? '✓ Uploaded' : 'Pending'}
+          </span>`;
+        el.appendChild(row);
+      }));
+    }
+
+    // ── HELPERS ───────────────────────────────────────────────────────────
+    function ghFetch(path, opts = {}) {
+      return fetch(`https://api.github.com${path}`, {
+        ...opts,
+        headers: {
+          Authorization: `token ${GH_TOKEN}`,
+          Accept: 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+          ...(opts.headers || {})
+        }
+      });
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload  = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function showProgress(pct) {
+      const wrap = document.getElementById('progress-wrap');
+      const bar  = document.getElementById('progress-bar');
+      wrap.style.display = 'block';
+      bar.style.width = pct + '%';
+    }
+    function hideProgress() {
+      document.getElementById('progress-wrap').style.display = 'none';
+      document.getElementById('progress-bar').style.width = '0%';
+    }
+
+    let toastTimer;
+    function showToast(msg, type = 'success') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = `show ${type}`;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.className = '', 3500);
+    }
+
+    // Allow pressing Enter on token field
+    document.getElementById('token-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') signIn();
+    });
+  </script>
+
+</body>
+</html>
