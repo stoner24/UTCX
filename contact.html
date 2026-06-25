@@ -76,7 +76,7 @@
       <div>
         <p style="font-family:var(--font-heading); font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--mid); margin-bottom:1.5rem;">Send a Message</p>
 
-        <form class="contact-form" id="contactForm">
+        <form class="contact-form" id="contactForm" action="https://formspree.io/f/xykqegbz" method="POST">
           <div class="form-group">
             <label for="name">Your Name</label>
             <input type="text" id="name" name="name" placeholder="Jane Smith" required />
@@ -102,7 +102,7 @@
             <textarea id="message" name="message" rows="6" placeholder="What's on your mind?" required></textarea>
           </div>
           <div>
-            <a href="mailto:utahcx@gmail.com" class="btn">Send Message</a>
+            <button type="submit" class="btn">Send Message</button>
           </div>
           <p style="font-size:0.8rem; color:var(--mid); margin-top:0.5rem;">
             Or email directly: <a href="mailto:utahcx@gmail.com" style="color:var(--green-light);">utahcx@gmail.com</a>
