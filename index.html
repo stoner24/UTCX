@@ -41,7 +41,7 @@
         <span class="block">CROSS</span>
       </h1>
       <p class="hero-desc fade-up delay-2">
-        10 races. September through December. Wasatch Front. Where the mud, the chaos, and the community collide every fall.
+        10 races. September through November. Wasatch Front. Where the mud, the chaos, and the community collide every fall.
       </p>
       <div class="hero-actions fade-up delay-3">
         <a href="schedule.html" class="btn">2026 Schedule</a>
@@ -59,7 +59,7 @@
   <!-- QUICK STATS -->
   <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:1px; background:var(--border); border-bottom:1px solid var(--border);">
     <div style="background:var(--card-bg); padding:2rem; text-align:center;">
-      <div style="font-family:var(--font-display); font-size:2.5rem; color:var(--green); font-weight:700;">Sep–Dec</div>
+      <div style="font-family:var(--font-display); font-size:2.5rem; color:var(--green); font-weight:700;">Sep–Nov</div>
       <div style="font-family:var(--font-heading); font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--mid); margin-top:0.25rem;">Race Season</div>
     </div>
     <div style="background:var(--card-bg); padding:2rem; text-align:center;">
@@ -125,51 +125,68 @@
     <p class="section-label">2026 Season</p>
     <h2 class="section-title">Upcoming<br>Races</h2>
 
-    <table class="schedule-table" style="margin-top:2rem;">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Race</th>
-          <th>Date</th>
-          <th>Venue</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="race-num">01</td>
-          <td><span class="race-name">UTCX Race #1</span></td>
-          <td class="race-date">TBD — September 2026</td>
-          <td class="race-venue">TBD</td>
-          <td><a href="schedule.html" class="btn btn-outline btn-sm">Details</a></td>
-        </tr>
-        <tr>
-          <td class="race-num">02</td>
-          <td><span class="race-name">UTCX Race #2</span></td>
-          <td class="race-date">TBD — September 2026</td>
-          <td class="race-venue">TBD</td>
-          <td><a href="schedule.html" class="btn btn-outline btn-sm">Details</a></td>
-        </tr>
-        <tr>
-          <td class="race-num">03</td>
-          <td><span class="race-name">UTCX Race #3</span></td>
-          <td class="race-date">TBD — October 2026</td>
-          <td class="race-venue">TBD</td>
-          <td><a href="schedule.html" class="btn btn-outline btn-sm">Details</a></td>
-        </tr>
-      </tbody>
-    </table>
+    <div id="upcoming-races" style="margin-top:2rem;"></div>
     <div style="margin-top:1.5rem;">
       <a href="schedule.html" class="btn btn-outline">Full Schedule →</a>
     </div>
   </section>
+
+  <script>
+    const RACES = [
+      { num: '01', name: 'UTCX Race #1',               tag: null,        date: new Date('2026-09-26'), dateStr: 'Sat, September 26, 2026', venue: 'Weber County Fairgrounds · Ogden' },
+      { num: '02', name: 'UTCX Race #2',               tag: null,        date: new Date('2026-10-03'), dateStr: 'Sat, October 3, 2026',    venue: 'Enve Composites · Ogden' },
+      { num: '03', name: 'UTCX Race #3',               tag: null,        date: new Date('2026-10-10'), dateStr: 'Sat, October 10, 2026',   venue: 'Ogden CX Park · Ogden' },
+      { num: '04', name: 'UTCX Race #4',               tag: null,        date: new Date('2026-10-17'), dateStr: 'Sat, October 17, 2026',   venue: 'Fort B · Ogden' },
+      { num: '05', name: 'UTCX Race #5',               tag: null,        date: new Date('2026-10-24'), dateStr: 'Sat, October 24, 2026',   venue: 'Springville Community Park · Springville' },
+      { num: '06', name: 'UTCX Race #6 — Night Race',  tag: 'Night',     date: new Date('2026-10-30'), dateStr: 'Fri, October 30, 2026',   venue: 'Art Dye Park · American Fork' },
+      { num: '07', name: 'UTCX Race #7 — Halloween CX',tag: 'Halloween', date: new Date('2026-10-31'), dateStr: 'Sat, October 31, 2026',   venue: 'Art Dye Park · American Fork' },
+      { num: '08', name: 'UTCX Race #8',               tag: null,        date: new Date('2026-11-07'), dateStr: 'Sat, November 7, 2026',   venue: 'Valley Regional Park · Taylorsville' },
+      { num: '09', name: 'UTCX Race #9',               tag: null,        date: new Date('2026-11-14'), dateStr: 'Sat, November 14, 2026',  venue: 'Hillside · Salt Lake City' },
+      { num: '10', name: 'UTCX State Championship',    tag: 'State Champ', date: new Date('2026-11-21'), dateStr: 'Sat, November 21, 2026', venue: 'Wheeler Farm · Murray' },
+    ];
+
+    function renderUpcoming() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Keep races whose date is today or in the future, then take next 3
+      const upcoming = RACES.filter(r => r.date >= today).slice(0, 3);
+      const el = document.getElementById('upcoming-races');
+
+      if (upcoming.length === 0) {
+        el.innerHTML = '<p style="color:var(--mid); font-size:0.9rem;">The 2026 season has wrapped. Check back next fall!</p>';
+        return;
+      }
+
+      const tagClass = tag => tag === 'State Champ' ? 'tag tag-champ' : 'tag';
+
+      const rows = upcoming.map(r => `
+        <tr>
+          <td class="race-num">${r.num}</td>
+          <td><span class="race-name">${r.name}</span>${r.tag ? `<span class="${tagClass(r.tag)}">${r.tag}</span>` : ''}</td>
+          <td class="race-date">${r.dateStr}</td>
+          <td class="race-venue">${r.venue}</td>
+          <td><a href="schedule.html" class="btn btn-outline btn-sm">Details</a></td>
+        </tr>`).join('');
+
+      el.innerHTML = `
+        <table class="schedule-table">
+          <thead>
+            <tr><th>#</th><th>Race</th><th>Date</th><th>Venue</th><th></th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    renderUpcoming();
+  </script>
 
   <!-- FOOTER -->
   <footer>
     <div class="footer-top">
       <div class="footer-brand">
         <div style="font-family:var(--font-display); font-size:1.5rem; font-weight:700; letter-spacing:0.1em;">UT<span style="color:var(--green);">CX</span></div>
-        <p>Utah's premier cyclocross series. 10 races along the Wasatch Front, September through December. Racing for everyone.</p>
+        <p>Utah's premier cyclocross series. 10 races along the Wasatch Front, September through November. Racing for everyone.</p>
       </div>
       <div class="footer-col">
         <h4>Series</h4>
